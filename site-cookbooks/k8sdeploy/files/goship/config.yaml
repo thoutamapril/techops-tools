@@ -1,0 +1,22 @@
+deploy_user: ubuntu
+notify: "/home/ubuntu/deployment_scripts/notify.sh"
+pivotal:
+  token: PIVOTAL_TOKEN_HERE
+  add_label: false
+
+projects:
+- name: brat
+  repo_owner: thoutamjagan
+  repo_name: brat
+  repo_type: github
+  host_type: k8s
+  k8s_resource: deployment
+  envs:
+  - name: k8staging
+    deploy: /tmp/deploy -b=false -p=brat -e=k8staging -r="k8s-deploy::brat"
+    repo_path: /srv/http/thoutamjagan/go/src/github.com/thoutamjagan/brat/.git
+    hosts:
+    - master.thoutam.com
+    branch: master
+    comment: ""
+  travis_token: TRAVIS_TOKEN
