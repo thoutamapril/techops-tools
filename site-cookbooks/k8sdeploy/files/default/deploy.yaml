@@ -1,0 +1,5 @@
+deploy_user: ubuntu
+chef_path: /srv/http/tech-tools/
+chef_repo: /srv/http/tech-tools
+pem_key: /home/ubuntu/.keys/tech-tools-ssh-key
+knife_path: /srv/http/tech-tools/.chef/knife.rb

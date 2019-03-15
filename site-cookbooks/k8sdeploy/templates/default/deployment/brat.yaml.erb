@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: brat-nodeport
+spec:
+  selector:
+    app: brat
+  ports:
+    - protocol: TCP
+      port: 80
+      nodePort: <%= node['load_balancer']['brat_port'] %>
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: brat
+  labels:
+    name: brat
+    git_version: unknown
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: brat
+  template:
+    metadata:
+      labels:
+        app: brat
+        git_version: unknown
+    spec:
+      containers:
+      - name: brat
+        image: cassj/brat
+        imagePullPolicy: Always
+        ports:
+        - protocol: TCP
+          containerPort: 80
+        env:
+        - name: BRAT_USERNAME
+          value: '<%= node['k8s_deploy']['brat']['username'] %>'
+        - name: BRAT_PASSWORD
+          value: '<%= node['k8s_deploy']['brat']['password'] %>'
+        - name: BRAT_EMAIL
+          value: '<%= node['k8s_deploy']['brat']['email'] %>'
+        volumeMounts:
+        - name: brat-data
+          mountPath: '/bratdata'
+        - name: brat-cfg
+          mountPath: '/bratcfg'
+      volumes:
+      - name: brat-data
+        nfs:
+          server: '<%= node['nfs']['brat-data'] %>'
+          path: '/'
+      - name: brat-cfg
+        nfs:
+          server: '<%= node['nfs']['brat-cfg'] %>'
+          path: '/'

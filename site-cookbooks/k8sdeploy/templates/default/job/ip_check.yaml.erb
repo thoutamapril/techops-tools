@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ip-check
+  labels:
+    name: ip-check
+    git_version: "<%= @git_version %>"
+    version: "<%= @version %>"
+spec:
+  template:
+    metadata:
+      labels:
+        app: ip-check
+        git_version: "<%= @git_version %>"
+        version: "<%= @version %>"
+    spec:
+      containers:
+      - name: ip-check
+        image: gcr.io/thoutamjagan/scheduler:<%= @git_version %>
+        imagePullPolicy: Always
+        args:
+        - '-m'
+        - 'scheduler.ip_check'
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: scheduler-access-key
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: scheduler-secret-key
+      imagePullSecrets:
+      - name: gcr
+      restartPolicy: Never
+  activeDeadlineSeconds: 300
